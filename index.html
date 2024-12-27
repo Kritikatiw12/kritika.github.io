@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+    <link rel="manifest" href="./manifest.json">
+    <title>NOC-Integration</title>
+
+</head>
+
+<body>
+    <style>
+        .col,
+        .form-control,
+        .form-select {
+            margin: 5px;
+        }
+        .ct_modal-content{
+            overflow: hidden;
+        }
+    </style>
+    <script>
+        var eventCount = 0;
+        var profCount = 0;
+        var clevertap = { event: [], profile: [], account: [], onUserLogin: [], notifications: [], privacy: [], region: "eu1" };
+        clevertap.account.push({ "id": "W84-4WR-565Z" });
+        clevertap.privacy.push({ optOut: false });
+        clevertap.privacy.push({ useIP: true });
+        (function () {
+            var wzrk = document.createElement('script');
+            wzrk.type = 'text/javascript';
+            wzrk.async = true;
+            wzrk.src = ('https:' == document.location.protocol ? 'https://d2r1yp2w7bby2u.cloudfront.net' : 'http://static.clevertap.com') + '/js/clevertap.min.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(wzrk, s);
+        })();
+        clevertap.notifications.push({
+            "titleText": 'Would you like to receive Push Notifications?',
+            "bodyText": 'We promise to only send you relevant content and give you updates on your transactions',
+            "okButtonText": 'Sign me up!',
+            "rejectButtonText": 'No thanks',
+            "askAgainTimeInSeconds": 1,
+            "okButtonColor": '#f28046'
+        });
+        function profilePush(id) {
+            var Identity = document.getElementById('id').value;
+            var profPorps = []
+            for (var i = 0; i < profCount; i++) {
+                var propName = document.getElementById("profName" + i).value;
+                var propVal = document.getElementById("profVal" + i).value;
+                var propType = document.getElementById("profType" + i).value;
+                if (propType === "number") propVal = parseInt(propVal);
+                if (propType === "Date") propVal = new Date(propVal);
+                profPorps.push([propName, propVal])
+            }
+            var obj = Object.fromEntries(profPorps);
+            obj['Identity'] = Identity;
+
+            try {
+                if (obj.Identity === "") throw "Identity cannot be empty";
+                if (id === "oul"){
+                    clevertap.onUserLogin.push({
+                    "Site": obj
+                })
+                }
+                else {
+                    clevertap.profile.push({
+                    "Site": obj
+                })
+                }
+                
+                document.getElementById('alert').setAttribute('class', "alert alert-success")
+                document.getElementById('alert').innerHTML = "Profile Added Successfully "
+
+            } catch (error) {
+                document.getElementById('alert').setAttribute('class', "alert alert-danger")
+                document.getElementById('alert').innerHTML = error
+            }
+
+
+        }
+
+        function addProp() {
+            var html = '<div class="col"><input class="form-control" type="text"  id="propName' + eventCount + '" placeholder="Property Name"></div><div class="col-md-2 col"><select id="propType' + eventCount + '" class="form-select col" onchange="changeType(this.id)" ><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option></select></div><div class="col"><input type="text" id="propVal' + eventCount + '" class="form-control" placeholder="Property Value"></div>'
+            var row = document.createElement('div')
+            row.setAttribute("class", "row")
+            row.innerHTML = html
+            document.getElementById('eventPush').appendChild(row);
+            eventCount++;
+        }
+
+        function changeType(id) {
+            var c = id.charAt(id.length - 1)
+            if (id.slice(0, id.length - 1) === "profType") {
+                document.getElementById("profVal" + c).type = document.getElementById(id).value
+            }
+            else {
+                document.getElementById("propVal" + c).type = document.getElementById(id).value
+            }
+
+
+        }
+
+
+        function eventPush() {
+            var eventName = document.getElementById("eventName").value;
+            var eventProps = []
+            for (var i = 0; i < eventCount; i++) {
+                var propName = document.getElementById("propName" + i).value;
+                var propVal = document.getElementById("propVal" + i).value;
+                var propType = document.getElementById("propType" + i).value;
+                if (propType === "number") propVal = parseInt(propVal);
+                if (propType === "Date") propVal = new Date(propVal);
+                eventProps.push([propName, propVal])
+            }
+            var obj = Object.fromEntries(eventProps);
+            clevertap.event.push(eventName, obj);
+            console.log("Event Pushed :", eventName)
+            console.log(obj)
+        }
+
+        function addProffProp() {
+            var html = '<div class="col"><input class="form-control" type="text"  id="profName' + profCount + '" placeholder="Property Name"></div><div class="col-md-2 col"><select id="profType' + profCount + '" class="form-select col" onchange="changeType(this.id)" ><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option></select></div><div class="col"><input type="text" id="profVal' + profCount + '" class="form-control" placeholder="Property Value"></div>'
+            var row = document.createElement('div')
+            row.setAttribute("class", "row")
+            row.innerHTML = html
+            document.getElementById('profPush').appendChild(row);
+            profCount++;
+        }
+
+        function changeIdType() {
+            document.getElementById('id').type = document.getElementById('idType').value;
+        }
+    </script>
+
+    <div class="container-fluid">
+        <div class="row" style="text-align: center;">
+            <div id="alert">
+            </div>
+            <h1>Profile Push</h1>
+            <hr>
+            <div class="col">
+                <div class="row" id="profPush">
+                    <div class="col">
+                        <select class="form-select" id="idType" onchange="changeIdType()">
+                            <option value="text">Custom ID</option>
+                            <option value="email">Email</option>
+                            <option value="number">Number (Custom No.)</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <input class="form-control" type="text" id="id" placeholder="Identity" required>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-dark" onclick="addProffProp()">
+                            + Profile Property
+                        </button>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-dark" id="oul" onclick="profilePush(self.id)">onUserLogin</button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-dark" id="pp" onclick="profilePush(self.id)">Profile Push</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <h1>Event Push</h1>
+            <hr>
+            <div class="col">
+                <div class="row" id="eventPush">
+                    <div class="col">
+                        <input id="eventName" class="form-control" type="text" placeholder="Event Name">
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-dark col" onclick="addProp()"> + Event Property</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-dark" onclick="eventPush()"> Submit </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

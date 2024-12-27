@@ -125,8 +125,11 @@
             console.log(obj)
         }
        function webInbox() {
-           clevertap.getUnreadInboxMessages();
-       }
+    clevertap.getUnreadInboxMessages();
+}
+
+// Attach the click event listener to the button
+document.getElementById("bell-selector").addEventListener("click", webInbox);
 
         function addProffProp() {
             var html = '<div class="col"><input class="form-control" type="text"  id="profName' + profCount + '" placeholder="Property Name"></div><div class="col-md-2 col"><select id="profType' + profCount + '" class="form-select col" onchange="changeType(this.id)" ><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option></select></div><div class="col"><input type="text" id="profVal' + profCount + '" class="form-control" placeholder="Property Value"></div>'
@@ -195,7 +198,7 @@
                         <button class="btn btn-dark" onclick="eventPush()"> Submit </button>
                     </div>
                     <div class="col">
-                        <button class="btn btn-dark" onclick="webInbox()"> Web Inbox </button>
+                        <button id="bell-selector" class="btn btn-dark" > Web Inbox </button>
                     </div>
                 </div>
             </div>
